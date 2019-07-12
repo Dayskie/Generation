@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MapGenerator : MonoBehaviour {
 
+	///Setup Variables
     public enum Drawmode { NoiseMap, ColourMap, Mesh};
     public Drawmode drawMode;
 
