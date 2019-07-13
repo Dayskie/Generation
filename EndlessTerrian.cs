@@ -6,8 +6,10 @@ public class EndlessTerrian : MonoBehaviour {
 
     public const float maxViewDistance = 450;
     public Transform viewer;
+    public Material mapMaterial;
 
     public static Vector2 viewerPosition;
+    static MapGenerator mapGenerator;
     int chunkSize;
     int chunksVisibleInViewDst;
 
@@ -15,6 +17,7 @@ public class EndlessTerrian : MonoBehaviour {
     List<TerrianChunk> terrianChunksVisibleLastUpdate = new List<TerrianChunk>();
 
 	void Start() {
+        mapGenerator = FindObjectOfType<MapGenerator>();
         chunkSize = MapGenerator.mapChunkSize - 1;
         chunksVisibleInViewDst = Mathf.RoundToInt(maxViewDistance / chunkSize);
 	}
@@ -44,7 +47,7 @@ public class EndlessTerrian : MonoBehaviour {
                         terrianChunksVisibleLastUpdate.Add(terrianChunkDictionary[viewedChunkCoord]); 
                     }
                 } else {
-                    terrianChunkDictionary.Add(viewedChunkCoord, new TerrianChunk(viewedChunkCoord, chunkSize, transform));  
+                    terrianChunkDictionary.Add(viewedChunkCoord, new TerrianChunk(viewedChunkCoord, chunkSize, transform, mapMaterial));  
                 }
             }
         }
@@ -56,17 +59,36 @@ public class EndlessTerrian : MonoBehaviour {
         Vector2 position;
         Bounds bounds;
 
-        public TerrianChunk(Vector2 coord, int size, Transform parent) {
+        MapData mapData;
+
+        MeshRenderer meshRenderer;
+        MeshFilter meshFilter;
+
+        public TerrianChunk(Vector2 coord, int size, Transform parent, Material material) {
             position = coord * size;
             bounds = new Bounds(position, Vector2.one * size);
             Vector3 positionV3 = new Vector3(position.x, 0, position.y);
 
-            meshObject = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            meshObject = new GameObject("Terrian Chunk");
+            meshRenderer = meshObject.AddComponent<MeshRenderer>();
+            meshFilter = meshObject.AddComponent<MeshFilter>();
+            meshRenderer.material = material;
+
             meshObject.transform.position = positionV3;
-            meshObject.transform.localScale = Vector3.one * size / 10f;
             meshObject.transform.parent = parent;
             SetVisible(false);
+
+            mapGenerator.RequestMapData(OnMapDataReceived);
         }
+
+        void OnMapDataReceived(MapData mapData) {
+            mapGenerator.RequestMeshData(mapData, OnMeshDataRecieved);
+        }
+
+        void OnMeshDataRecieved(MeshData meshData) {
+            meshFilter.mesh = meshData.CreateMesh();
+        }
+
 
         public void UpdateTerrianChunk() {
             float viewerDstFromNearestEdge = Mathf.Sqrt(bounds.SqrDistance(viewerPosition));
