@@ -9,4 +9,5 @@ Last Updated  13 July 2019
 Original Generation was created by Sebastion Lague 
 https://www.youtube.com/user/Cercopithecan
 
-Make sure that you have a seperate Noise Plane and Mesh Plane DO NOT USE A SINGLE PLANE FOR BOTH
+**Make sure that you have a seperate Noise Plane and Mesh Plane DO NOT USE A SINGLE PLANE FOR BOTH
+
